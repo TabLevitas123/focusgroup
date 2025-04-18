@@ -1,0 +1,19 @@
+[project]
+name = "focuspanel"
+version = "1.0.0"
+description = "LLM-powered audio analyzer for focus groups"
+requires-python = ">=3.10"
+dependencies = [
+    "PySide6==6.5.2",
+    "sounddevice",
+    "soundfile",
+    "openai-whisper",
+    "pyannote.audio",
+    "torch",
+    "torchaudio",
+    "numpy"
+]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
