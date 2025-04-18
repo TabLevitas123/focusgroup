@@ -61,6 +61,7 @@ class FocusPanelApp(QWidget):
 
     def _stop(self):
         if self.recorder:
+            # Now we can directly call stop() on our RecordingThread
             self.recorder.stop()
             self.recorder = None
         self.status.setText(f"Saved to {self.wav_path}")
@@ -104,14 +105,22 @@ class FocusPanelApp(QWidget):
         p = self.profiles[idx]
         self.details.setPlainText(json.dumps(profile_builder.asdict(p), indent=2))
 
-    def _export(self):
-        out = Path.home() / f"focuspanel_export_{datetime.datetime.now().isoformat().replace(':', '-')}.json"
+    def _export(self, export_dir=None):
+        """Export session data to a JSON file.
+        
+        Args:
+            export_dir: Optional directory path where to save the export.
+                        If None, uses the home directory.
+        """
+        base_dir = Path(export_dir) if export_dir else Path.home()
+        out = base_dir / f"focuspanel_export_{datetime.datetime.now().isoformat().replace(':', '-')}.json"
         with open(out, "w") as f:
             json.dump({
                 "profiles": profile_builder.profiles_to_json(self.profiles),
                 "recommendations": self.recs
             }, f, indent=2)
         self.status.setText(f"Exported session to {out}")
+        return out  # Return the path for testing
 
 def run():
     database.init()

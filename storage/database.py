@@ -1,13 +1,17 @@
-import sqlite3, json
+import sqlite3, json, os
 from utils.config import CFG
 from utils.logger import get_logger
 
 LOG = get_logger("Database")
-DB_PATH = CFG.get("DB_PATH")
+
+def get_db_path():
+    """Get the database path from environment or config."""
+    return os.environ.get("DB_PATH", CFG.get("DB_PATH"))
 
 def init():
     try:
-        with sqlite3.connect(DB_PATH) as conn:
+        db_path = get_db_path()
+        with sqlite3.connect(db_path) as conn:
             conn.execute("""
                 CREATE TABLE IF NOT EXISTS sessions (
                     id INTEGER PRIMARY KEY,
@@ -23,7 +27,8 @@ def init():
 
 def save_session(audio_path: str, profiles: list[dict], recommendations: dict):
     try:
-        with sqlite3.connect(DB_PATH) as conn:
+        db_path = get_db_path()
+        with sqlite3.connect(db_path) as conn:
             conn.execute("""
                 INSERT INTO sessions (audio_path, profiles_json, recommendations_json)
                 VALUES (?, ?, ?)
