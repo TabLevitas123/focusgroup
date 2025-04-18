@@ -1,0 +1,31 @@
+name: Refolder + Validate
+
+on:
+  workflow_dispatch:
+
+jobs:
+  reconstruct:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Recreate folders from flattened filenames
+        run: |
+          find . -maxdepth 1 -type f -name "__*__*" | while read file; do
+            newpath=$(echo "$file" | sed 's|__|/|g')
+            mkdir -p "$(dirname "$newpath")"
+            mv "$file" "$newpath"
+          done
+
+      - name: Run folder structure validator
+        run: |
+          chmod +x validate_structure.sh
+          ./validate_structure.sh
+
+      - name: Commit refoldered structure
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add .
+          git commit -m "✅ Refoldered and validated structure" || echo "Nothing to commit"
+          git push
